@@ -54,7 +54,7 @@ def convert_time_to_string(dt):
     return datetime.datetime.fromtimestamp(epoch).strftime("%Y-%m-%d, %H:%M:%S")
 
 ##########################################################################################
-def read_atl03(filename, geoid_h=True, gtxs_to_read='all'):
+def read_atl03(filename, geoid_h=True, gtxs_to_read='all', verbose=False):
     """
     Read in an ATL03 granule. 
 
@@ -101,7 +101,7 @@ def read_atl03(filename, geoid_h=True, gtxs_to_read='all'):
     >>> read_atl03(filename='processed_ATL03_20210715182907_03381203_005_01.h5', geoid_h=True)
     """
     
-    print('  reading in', filename)
+    if verbose: print('  reading in', filename)
     granule_id = filename[filename.find('ATL03_'):(filename.find('.h5')+3)]
     
     # open file
@@ -159,10 +159,10 @@ def read_atl03(filename, geoid_h=True, gtxs_to_read='all'):
                  'gtx_dead_time_dict': {}}
 
     # loop through all beams
-    print('  reading in beam:', end=' ')
+    if verbose: print('  reading in beam:', end=' ')
     for beam in beamlist:
         
-        print(beam, end=' ')
+        if verbose: print(beam, end=' ')
         try:
             
 #             if gtx_strength_dict[beam]=='strong':
@@ -222,6 +222,10 @@ def read_atl03(filename, geoid_h=True, gtxs_to_read='all'):
                     df['geoid'] = geoid
                 else:
                     df['geoid'] = 0.0
+            
+            # re-sort by delta_time
+            df.sort_values(by='dt',inplace=True)
+            df.reset_index(inplace=True, drop=True)
 
             #### save to list of dataframes
             dfs[beam] = df
@@ -232,7 +236,7 @@ def read_atl03(filename, geoid_h=True, gtxs_to_read='all'):
             traceback.print_exc()
             
     f.close()
-    print(' --> done.')
+    if verbose: print(' --> done.')
     if len(beamlist)==0:
         return beams_available, ancillary
     else:
@@ -456,7 +460,7 @@ def download_is2(short_name='ATL03', start_date='2018-01-01', end_date='2030-01-
     # Create an output folder if the folder does not already exist.
     path = str(os.getcwd() + '/' + output_dir)
     if not os.path.exists(path):
-        os.mkdir(path)
+        os.makedirs(path)
 
     # Different access methods depending on request mode:
     if request_mode=='async':

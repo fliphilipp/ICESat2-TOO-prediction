@@ -6,3 +6,6 @@ __pycache__/
 *.python_history
 data/LiDAR/vegpointing_test_sang/
 data/WSMR_CCR_Locations_Final_UPDATE04032020.xlsx
+data/IS2/kmls/all/
+data/IS2/atl03/wsmr/
+
